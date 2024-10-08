@@ -30,27 +30,6 @@ app.get("/compress", (req, res): any => {
   //   console.log("Available filters:");
   //   console.dir(filters);
   // });
-
-  ffmpeg(unprocessed_file_path)
-    .outputOptions("-vf", "scale=1920:1080")
-    // .fromFormat("mp4")
-    // .toFormat("avi")
-    // .on("codecData", function (data) {
-    //   console.log(
-    //     "Input is " + data.audio + " audio " + "with " + data.video + " video"
-    //   );
-    // })
-    // .on("progress", function (progress) {
-    //   console.log("Processing: " + progress.percent + "% done");
-    // })
-    .on("end", () => {
-      res.status(200).send("Video Processed");
-    })
-    .on("error", (err) => {
-      console.log(`An error occured ${err.message}`);
-      res.status(400).send("An error occured");
-    })
-    .save(output_file_path);
 });
 
 app.listen(3000, () => {
