@@ -1,6 +1,6 @@
-import fs from "fs";
+import fs, { mkdir } from "fs";
 import ffmpeg from "fluent-ffmpeg";
-import { Bucket, Storage } from "@google-cloud/storage";
+import { Storage } from "@google-cloud/storage";
 
 const storage = new Storage();
 
@@ -10,7 +10,19 @@ const comp_vide_bucket_name = "vids-shrink-comp";
 const org_video_dir = "./org_vids";
 const comp_video_dir = "./comp_vids";
 
-export function reduce_video(org_file_name: string) {
+export function dir_exists() {
+  check_dir_availablility(org_video_dir);
+  check_dir_availablility(comp_video_dir);
+}
+
+function check_dir_availablility(dir_path: string) {
+  if (fs.existsSync(dir_path)) {
+    fs.mkdirSync(dir_path, { recursive: true });
+    console.log(`${dir_path} - created`);
+  }
+}
+
+export async function reduce_video(org_file_name: string) {
   return new Promise<void>((resolve, reject) => {
     ffmpeg(org_file_name)
       .outputOptions("-vf", "scale=-1:480")
@@ -41,4 +53,23 @@ export async function upload_comp_to_bucket(filename: string) {
     .upload(`${comp_video_dir}/${filename}`, {
       destination: filename,
     });
+}
+
+export async function delete_file(file_dir: string) {
+  return new Promise<void>((resolve, reject) => {
+    if (fs.existsSync(file_dir)) {
+      fs.unlink(file_dir, (error) => {
+        if (error) {
+          console.log(`An error occured ${error?.message}`);
+          reject(error);
+        } else {
+          console.log("File deleted - ");
+          resolve();
+        }
+      });
+    } else {
+      console.log("Skipped... No file found");
+      resolve();
+    }
+  });
 }
