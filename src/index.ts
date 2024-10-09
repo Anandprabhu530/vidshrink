@@ -12,12 +12,16 @@ app.use(express.json());
 
 dir_exists();
 
-app.get("/compress", async (req, res): any => {
-  const unprocessed_file_path = req.body.unprocessed_file_path;
-  const output_file_path = req.body.output_file_path;
-  if (!unprocessed_file_path || !output_file_path) {
-    return res.status(400).send("Input or output path error");
+app.get("/compress", async (req, res) => {
+  let data;
+  try {
+    const name = Buffer.from(req.body.message.data, "base64").toString().trim();
+    data = JSON.parse(name);
+  } catch (err) {
+    console.log(`Error occured.. Missing filename`);
   }
+  const unprocessed_file_path = data.name;
+  const output_file_path = `processed_${unprocessed_file_path}`;
 
   // ffmpeg.getAvailableFormats(function (err, formats) {
   //   console.log("Available formats:");
