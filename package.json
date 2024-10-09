@@ -12,7 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@google-cloud/storage": "^7.13.0",
+    "@aws-sdk/client-s3": "^3.666.0",
     "express": "^4.21.0",
     "fluent-ffmpeg": "^2.1.3"
   },
