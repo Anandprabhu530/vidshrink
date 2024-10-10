@@ -16,16 +16,19 @@ export async function dir_exists() {
 }
 
 function check_dir_availablility(dir_path: string) {
-  if (fs.existsSync(dir_path)) {
+  if (!fs.existsSync(dir_path)) {
     fs.mkdirSync(dir_path, { recursive: true });
-    console.log(`${dir_path} - created`);
   }
 }
 
-export async function reduce_video(org_file_name: string) {
+export async function reduce_video(
+  org_file_name: string,
+  output_file_path: string
+) {
+  console.log(org_file_name);
   return new Promise<void>((resolve, reject) => {
     ffmpeg(org_file_name)
-      .outputOptions("-vf", "scale=-1:480")
+      .outputOptions("-vf", "scale=-1:360")
       .on("end", () => {
         console.log("Process Complete");
         resolve();
@@ -34,7 +37,7 @@ export async function reduce_video(org_file_name: string) {
         console.log(`An error occured ${err.message}`);
         reject(err);
       })
-      .save(`${comp_video_dir}/compressed_${org_file_name}`);
+      .save(`${comp_video_dir}/compressed_${output_file_path}`);
   });
 }
 
@@ -58,7 +61,6 @@ export async function download_org_frm_bucket(filename: string) {
 
     // Download the video using streams
     await pipeline(response.Body as NodeJS.ReadableStream, writeStream);
-
     console.log(
       `Video successfully downloaded to ${org_video_dir}/${filename}`
     );
@@ -72,7 +74,7 @@ export async function download_org_frm_bucket(filename: string) {
   //   .file(filename)
   //   .download({ destination: `${org_video_dir}/${filename}` });
 
-  // console.log("Video downloaded from bucket to Image");
+  console.log("Video downloaded from bucket to Image");
 }
 
 export async function delete_file(file_dir: string) {
@@ -83,12 +85,12 @@ export async function delete_file(file_dir: string) {
           console.log(`An error occured ${error?.message}`);
           reject(error);
         } else {
-          console.log("File deleted - ");
+          console.log(`File deleted - ${file_dir}`);
           resolve();
         }
       });
     } else {
-      console.log("Skipped... No file found");
+      console.log(`Skipped... No file found - ${file_dir}`);
       resolve();
     }
   });

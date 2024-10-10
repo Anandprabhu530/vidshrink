@@ -1,59 +1,34 @@
 import express from "express";
-import {
-  delete_file,
-  dir_exists,
-  download_org_frm_bucket,
-  reduce_video,
-} from "./Storage";
+import { delete_file, dir_exists, reduce_video } from "./Storage";
+import path from "path";
 
-import fs from "fs";
 const app = express();
 app.use(express.json());
 
 dir_exists();
 
 app.get("/compress", async (req, res) => {
-  const unprocessed_file_path = req.body.inpufile;
-  const output_file_path = req.body.output;
+  const unprocessed_file_path = req.body.unprocessed_file_path;
+  const output_file_path = req.body.output_file_path;
 
-  // ffmpeg.getAvailableFormats(function (err, formats) {
-  //   console.log("Available formats:");
-  //   console.dir(formats);
-  // });
-
-  // ffmpeg.getAvailableCodecs(function (err, codecs) {
-  //   console.log("Available codecs:");
-  //   console.dir(codecs);
-  // });
-
-  // ffmpeg.getAvailableEncoders(function (err, encoders) {
-  //   console.log("Available encoders:");
-  //   console.dir(encoders);
-  // });
-
-  // ffmpeg.getAvailableFilters(function (err, filters) {
-  //   console.log("Available filters:");
-  //   console.dir(filters);
-  // });
-  await download_org_frm_bucket(unprocessed_file_path);
+  // await download_org_frm_bucket(unprocessed_file_path);
+  const PROJECT_ROOT = path.resolve(__dirname, "../comp_vids");
   try {
     //reduce video and add it to the local directory
-    await reduce_video(unprocessed_file_path);
+    await reduce_video(unprocessed_file_path, output_file_path);
 
     //add download video functionality
-    if (fs.existsSync(output_file_path)) {
-    }
+    res.sendFile(`compressed_${output_file_path}`, {
+      root: PROJECT_ROOT,
+    });
   } catch (error) {
-    Promise.all([
-      await delete_file(unprocessed_file_path),
-      await delete_file(output_file_path),
-    ]);
-
     console.log(`An error Occured ${error}`);
+  } finally {
+    await delete_file(`./comp_vids/compressed_${output_file_path}`);
   }
 });
 
-const PORT = process.env.port || 3000;
+const PORT = process.env.port || 3001;
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
