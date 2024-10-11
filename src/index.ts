@@ -9,22 +9,26 @@ dir_exists();
 
 app.get("/compress", async (req, res) => {
   const unprocessed_file_path = req.body.unprocessed_file_path;
-  const output_file_path = req.body.output_file_path;
+  const split_array = unprocessed_file_path.split("/");
+  const output_file = split_array[split_array.length - 1];
 
+  //code to download from Bucket
   // await download_org_frm_bucket(unprocessed_file_path);
+
+  //Set path to delete later and also to send it to the end user
   const PROJECT_ROOT = path.resolve(__dirname, "../comp_vids");
   try {
     //reduce video and add it to the local directory
-    await reduce_video(unprocessed_file_path, output_file_path);
+    await reduce_video(unprocessed_file_path, output_file);
 
     //add download video functionality
-    res.sendFile(`compressed_${output_file_path}`, {
+    res.sendFile(`compressed_${output_file}`, {
       root: PROJECT_ROOT,
     });
   } catch (error) {
     console.log(`An error Occured ${error}`);
   } finally {
-    await delete_file(`./comp_vids/compressed_${output_file_path}`);
+    await delete_file(`./comp_vids/compressed_${unprocessed_file_path}`);
   }
 });
 
