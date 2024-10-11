@@ -2,3 +2,5 @@
 dockerfile
 .dockerignore
 assests
+*org_vids
+*comp_vids
