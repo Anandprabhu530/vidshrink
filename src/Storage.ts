@@ -3,6 +3,7 @@ import ffmpeg from "fluent-ffmpeg";
 import { Storage } from "@google-cloud/storage";
 
 const org_video_bucket_name = "vids-shrink-org";
+const process_video_bucket_name = "vids-shrink-processed";
 
 const storage = new Storage();
 
@@ -20,9 +21,9 @@ function check_dir_availablility(dir_path: string) {
   }
 }
 
-export async function reduce_video(org_file_name: string, output_file: string) {
+export async function reduce_video(filename: string) {
   return new Promise<void>((resolve, reject) => {
-    ffmpeg(org_file_name)
+    ffmpeg(filename)
       .outputOptions("-vf", "scale=-1:360")
       .on("end", () => {
         console.log("Process Complete");
@@ -32,7 +33,7 @@ export async function reduce_video(org_file_name: string, output_file: string) {
         console.log(`An error occured ${err.message}`);
         reject(err);
       })
-      .save(`${comp_video_dir}/compressed_${output_file}`);
+      .save(`${comp_video_dir}/compressed_${filename}`);
   });
 }
 
@@ -66,4 +67,24 @@ export async function delete_file(file_dir: string) {
       resolve();
     }
   });
+}
+
+export async function upload_processed_video(filename: string): Promise<void> {
+  const sourcePath = `${comp_video_dir}/${filename}`;
+  await storage
+    .bucket(process_video_bucket_name)
+    .upload(sourcePath, { destination: filename });
+  console.log(`Processed video uploaded to bucket: ${filename}`);
+}
+
+export async function generate_signed_url(filename: string): Promise<string> {
+  const [url] = await storage
+    .bucket(process_video_bucket_name)
+    .file(filename)
+    .getSignedUrl({
+      version: "v4",
+      action: "read",
+      expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+    });
+  return url;
 }
