@@ -51,8 +51,8 @@ app.post("/compress", async (req, res) => {
 
     //delete files
     Promise.all([
-      await delete_file(`.org_vids/${filename}`),
-      await delete_file(`.comp_vids/${processedFilename}`),
+      await delete_file(`./org_vids/${filename}`),
+      await delete_file(`./comp_vids/${processedFilename}`),
     ]);
 
     // Generate signed URL
@@ -63,8 +63,8 @@ app.post("/compress", async (req, res) => {
   } catch (error) {
     console.log(`An error Occured ${error}`);
     Promise.all([
-      await delete_file(`.org_vids/${filename}`),
-      await delete_file(`.comp_vids/${processedFilename}`),
+      await delete_file(`./org_vids/${filename}`),
+      await delete_file(`./comp_vids/${processedFilename}`),
     ]);
     res.status(500).send("Internal Server Error");
   }

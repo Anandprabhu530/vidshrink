@@ -23,7 +23,7 @@ function check_dir_availablility(dir_path: string) {
 
 export async function reduce_video(filename: string) {
   return new Promise<void>((resolve, reject) => {
-    ffmpeg(filename)
+    ffmpeg(`${org_video_dir}/${filename}`)
       .outputOptions("-vf", "scale=-1:360")
       .on("end", () => {
         console.log("Process Complete");
