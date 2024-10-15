@@ -13,7 +13,7 @@ app.use(express.json());
 
 dir_exists();
 
-app.get("/compress", async (req, res) => {
+app.post("/compress", async (req, res) => {
   if (!req.body) {
     const msg = "no Pub/Sub message received";
     console.error(`error: ${msg}`);
@@ -70,7 +70,7 @@ app.get("/compress", async (req, res) => {
   }
 });
 
-const PORT = process.env.port || 3001;
+const PORT = 8080;
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
