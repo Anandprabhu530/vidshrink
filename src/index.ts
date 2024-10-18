@@ -7,6 +7,7 @@ import {
   reduce_video,
   upload_processed_video,
 } from "./Storage";
+import {newVideo, setVideo} from "./firebase";
 
 const app = express();
 app.use(express.json());
@@ -35,7 +36,17 @@ app.post("/compress", async (req, res) => {
     .trim();
   data = JSON.parse(pub_sub_msg);
   const filename = data.name;
+  const file_id = filename.split(".")[0];
 
+  if (!newVideo(filename)) {
+    return res.status(400).json("Video already processing");
+  } else {
+    await setVideo(filename, {
+      id: filename,
+      uid: file_id.split("-")[0],
+      status: "processing",
+    });
+  }
   //processed_FileName
   const processedFilename = `compressed_${filename}`;
 
@@ -55,11 +66,12 @@ app.post("/compress", async (req, res) => {
       await delete_file(`./comp_vids/${processedFilename}`),
     ]);
 
-    // Generate signed URL
-    const signedUrl = await generate_signed_url(processedFilename);
+    await setVideo(filename, {
+      status: "processed",
+      fileName: processedFilename,
+    });
 
-    //respond with signedURL
-    res.json({ signedURL: signedUrl });
+    return res.status(200).json("Video processing Completed");
   } catch (error) {
     console.log(`An error Occured ${error}`);
     Promise.all([
