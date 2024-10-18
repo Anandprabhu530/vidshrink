@@ -39,7 +39,7 @@ app.post("/compress", async (req, res) => {
   const file_id = filename.split(".")[0];
 
   if (!newVideo(filename)) {
-    return res.status(400).json("Video already processing");
+    res.status(400).json("Video already processing");
   } else {
     await setVideo(filename, {
       id: filename,
@@ -71,7 +71,7 @@ app.post("/compress", async (req, res) => {
       fileName: processedFilename,
     });
 
-    return res.status(200).json("Video processing Completed");
+    res.status(200).json("Video processing Completed");
   } catch (error) {
     console.log(`An error Occured ${error}`);
     Promise.all([
