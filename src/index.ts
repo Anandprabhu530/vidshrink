@@ -59,24 +59,24 @@ app.post("/compress", async (req, res) => {
     //add download video functionality
     await upload_processed_video(processedFilename);
 
-    //delete files
-    Promise.all([
-      await delete_file(`./org_vids/${filename}`),
-      await delete_file(`./comp_vids/${processedFilename}`),
-    ]);
-
     await setVideo(filename, {
+      id: filename,
       status: "processed",
+      uid: file_id.split("-")[0],
       fileName: processedFilename,
     });
+
+    //delete files
+    await delete_file(`./org_vids/${filename}`);
+    await delete_file(`./comp_vids/${processedFilename}`);
 
     res.status(200).json("Video processing Completed");
   } catch (error) {
     console.log(`An error Occured ${error}`);
-    Promise.all([
-      await delete_file(`./org_vids/${filename}`),
-      await delete_file(`./comp_vids/${processedFilename}`),
-    ]);
+
+    await delete_file(`./org_vids/${filename}`);
+    await delete_file(`./comp_vids/${processedFilename}`);
+
     res.status(500).send("Internal Server Error");
   }
 });
