@@ -39,7 +39,9 @@ app.post("/compress", async (req, res) => {
 
   if (!newVideo(filename)) {
     res.status(400).json("Video already processing");
+    return;
   } else {
+    console.log("Does not exists");
     await setVideo(filename, {
       id: filename,
       uid: file_id.split("-")[0],
@@ -65,11 +67,13 @@ app.post("/compress", async (req, res) => {
       uid: file_id.split("-")[0],
       fileName: processedFilename,
     });
+    console.log("Processed record set");
 
     //delete files
     await delete_file(`./org_vids/${filename}`);
     await delete_file(`./comp_vids/${processedFilename}`);
 
+    console.log("All process Over");
     res.status(200).json("Video processing Completed");
   } catch (error) {
     console.log(`An error Occured ${error}`);

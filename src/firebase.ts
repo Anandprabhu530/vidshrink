@@ -19,6 +19,7 @@ export async function setVideo(videoId: string, video: Video) {
 
 export async function newVideo(videoId: string) {
   const video = await getVideo(videoId);
+  console.log("video", video);
   return video?.status === undefined;
 }
 
